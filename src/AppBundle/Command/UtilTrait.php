@@ -3,10 +3,16 @@
 namespace AppBundle\Command;
 
 use Doctrine\DBAL\Logging\DebugStack;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 trait UtilTrait
 {
     private $stack;
+
+    protected function getStopwatch()
+    {
+        return new Stopwatch();
+    }
 
     protected function getDoctrine()
     {

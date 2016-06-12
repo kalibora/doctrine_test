@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -112,5 +113,27 @@ class Customer
         }
 
         return array_unique($months);
+    }
+
+    public function getOrdersByDate(\DateTimeInterface $date)
+    {
+        $orders = [];
+
+        foreach ($this->orders as $order) {
+            if ($order->getDate()->format('Ymd') === $date->format('Ymd')) {
+                $orders[] = $order;
+            }
+        }
+
+        return $orders;
+    }
+
+    public function getOrdersByDateWithCriteria(\DateTimeInterface $date)
+    {
+        $criteria = Criteria::create()
+            ->where(Criteria::expr()->eq('date', $date))
+        ;
+
+        return $this->orders->matching($criteria);
     }
 }

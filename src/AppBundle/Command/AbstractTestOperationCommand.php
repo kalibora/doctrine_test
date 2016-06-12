@@ -10,7 +10,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Stopwatch\Stopwatch;
 use AppBundle\Entity\Customer;
 
 abstract class AbstractTestOperationCommand extends ContainerAwareCommand
@@ -101,7 +100,7 @@ abstract class AbstractTestOperationCommand extends ContainerAwareCommand
         $findMethod = static::$modeFindMethodMap[$specifyMode];
         $doctrine = $this->getDoctrine();
         $customerRepository = $doctrine->getRepository('AppBundle:Customer');
-        $stopwatch = new Stopwatch();
+        $stopwatch = $this->getStopwatch();
 
         $stopwatch->start('find');
         $customer = $customerRepository->$findMethod('Target Customer');
@@ -128,6 +127,5 @@ abstract class AbstractTestOperationCommand extends ContainerAwareCommand
             ),
             'sqls' => $this->getExecutedSqls(),
         ]));
-
     }
 }
