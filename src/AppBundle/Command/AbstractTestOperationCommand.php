@@ -2,7 +2,6 @@
 
 namespace AppBundle\Command;
 
-use Doctrine\DBAL\Logging\DebugStack;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableCell;
@@ -16,6 +15,8 @@ use AppBundle\Entity\Customer;
 
 abstract class AbstractTestOperationCommand extends ContainerAwareCommand
 {
+    use UtilTrait;
+
     protected static $modeFindMethodMap = [
         'join'       => 'findJoinedCustomerByName',
         'eager'      => 'findEagerCustomerByName',
@@ -98,14 +99,8 @@ abstract class AbstractTestOperationCommand extends ContainerAwareCommand
         }
 
         $findMethod = static::$modeFindMethodMap[$specifyMode];
-        $doctrine = $this->getContainer()->get('doctrine');
+        $doctrine = $this->getDoctrine();
         $customerRepository = $doctrine->getRepository('AppBundle:Customer');
-        $stack = new DebugStack();
-        $doctrine
-            ->getConnection()
-            ->getConfiguration()
-            ->setSQLLogger($stack)
-        ;
         $stopwatch = new Stopwatch();
 
         $stopwatch->start('find');
@@ -118,7 +113,7 @@ abstract class AbstractTestOperationCommand extends ContainerAwareCommand
 
         $output->writeln(json_encode([
             'operation_result' => $operationResult,
-            'query_count' => count($stack->queries),
+            'query_count' => $this->countExecutedQueries(),
             'duration' => sprintf(
                 '%s (find: %s, operation: %s)',
                 $findEvent->getDuration() + $operationEvent->getDuration(),
@@ -131,21 +126,8 @@ abstract class AbstractTestOperationCommand extends ContainerAwareCommand
                 $findEvent->getMemory() / 1024 / 1024,
                 $operationEvent->getMemory() / 1024 / 1024
             ),
-            'sqls' => $this->extractSqls($stack),
+            'sqls' => $this->getExecutedSqls(),
         ]));
 
-    }
-
-    protected function extractSqls(DebugStack $stack, $max = 5)
-    {
-        $sqls = array_slice(
-            array_map(function ($query) {
-                return $query['sql'];
-            }, $stack->queries),
-            0,
-            $max
-        );
-
-        return $sqls;
     }
 }

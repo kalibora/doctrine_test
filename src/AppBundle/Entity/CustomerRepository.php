@@ -38,7 +38,8 @@ class CustomerRepository extends \Doctrine\ORM\EntityRepository
     public function findLazyCustomerByName($name)
     {
         return $this
-            ->changeFetchMode(ClassMetadata::FETCH_LAZY)
+            // 未定義の場合、デフォルトは FETCH_LAZY
+            //->changeFetchMode(ClassMetadata::FETCH_LAZY)
             ->findOneByName($name)
         ;
     }
