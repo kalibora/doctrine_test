@@ -2,7 +2,6 @@
 
 namespace AppBundle\Entity;
 
-use AppBundle\Specification\CuillenOrderSpecification;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -105,10 +104,9 @@ class Customer
     public function getCuillenMonths()
     {
         $months = [];
-        $cuillenSpec = new CuillenOrderSpecification();
 
         foreach ($this->orders as $order) {
-            if ($order->isSatisfiedBy($cuillenSpec)) {
+            if ($order->isCuillen()) {
                 $months[] = $order->getDate()->format('Y-m');
             }
         }

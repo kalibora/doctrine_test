@@ -2,8 +2,6 @@
 
 namespace AppBundle\Entity;
 
-use AppBundle\Specification\CandidateInterface;
-use AppBundle\Specification\CandidateTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -11,10 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="AppBundle\Entity\OrderRepository")
  * @ORM\Table(name="orders")
  */
-class Order implements CandidateInterface
+class Order
 {
-    use CandidateTrait;
-
     /**
      * @ORM\Column(type="integer")
      * @ORM\Id
@@ -133,5 +129,18 @@ class Order implements CandidateInterface
     public function getLineItems()
     {
         return $this->lineItems;
+    }
+
+    public function isCuillen()
+    {
+        $discountableAmount = 0;
+
+        foreach ($this->lineItems as $lineItem) {
+            if ($lineItem->getProduct() === 'Talisker') {
+                $discountableAmount += $lineItem->getCost();
+            }
+        }
+
+        return $discountableAmount >= 5000;
     }
 }
